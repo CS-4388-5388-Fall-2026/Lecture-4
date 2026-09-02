@@ -11,6 +11,8 @@ export class App extends gfx.GfxApp
     private ship: gfx.Mesh2;
     private star: gfx.Mesh2;
     private starField: gfx.Particles2;
+    private laserSound: HTMLAudioElement;
+    private mousePosition: gfx.Vector2;
     // --- Create the App class ---
     constructor()
     {
@@ -19,6 +21,8 @@ export class App extends gfx.GfxApp
         this.ship = gfx.Geometry2Factory.createBox();
         this.star = gfx.Geometry2Factory.createBox();
         this.starField = new gfx.Particles2(this.star, 200);
+        this.laserSound = new Audio('./laser.mp3');
+        this.mousePosition = new gfx.Vector2(0, 0);
 
     }
 
@@ -31,7 +35,6 @@ export class App extends gfx.GfxApp
         this.ship.scale.set(0.08, 0.08);
 
        
-
         for (let i = 0; i < this.starField.numParticles; i++)
         {
             this.starField.particleSizes[i] = Math.random()*0.008 + 0.002;
@@ -48,6 +51,20 @@ export class App extends gfx.GfxApp
     // --- Update is called once each frame by the main graphics loop ---
     update(deltaTime: number): void 
     {
+        const shipSpeed = 0.5;
+        this.ship.lookAt(this.mousePosition);
 
+        const shipDirection = new gfx.Vector2(0, shipSpeed * deltaTime);
+        shipDirection.rotate(this.ship.rotation);
+        this.ship.position.add(shipDirection);
+    }
+
+    onMouseDown(event: MouseEvent): void {
+        this.laserSound.play();
+        this.laserSound.currentTime = 0; // Reset the sound to the beginning
+    }
+
+    onMouseMove(event: MouseEvent): void {
+        this.mousePosition.copy(this.getNormalizedDeviceCoordinates(event.x, event.y));
     }
 }
